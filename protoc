@@ -1,0 +1,23 @@
+#!/bin/sh
+
+PROGNAME="$(basename $0)"
+VERSION="latest"
+
+error(){
+  error_code=$1
+  echo "ERROR: $2" >&2
+  echo "($PROGNAME wrapper version: $VERSION, error code: $error_code )" &>2
+  exit $1
+}
+check_cmd_in_path(){
+  cmd=$1
+  which $cmd > /dev/null 2>&1 || error 1 "$cmd not found!"
+}
+
+check_cmd_in_path docker
+
+exec docker run \
+  --interactive --tty --rm \
+  --volume "$PWD":/wd \
+  --workdir /wd \
+  "kolah/protoc:$VERSION" "$@"
